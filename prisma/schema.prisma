@@ -1,0 +1,284 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  firstname String
+  lastname  String
+  email     String    @unique
+  password  String
+  birthdate DateTime
+  avatar    String? 
+  bio       String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  publications       Publication[]
+  comments           Comment[]
+  groupsCreated      UserGroup[] @relation("UserGroupCreator")
+  groupMemberships   GroupMember[]
+  messages           Message[]
+  friendships1       Friendship[] @relation("FriendshipUser1")
+  friendships2       Friendship[] @relation("FriendshipUser2")
+  eventsCreated      Event[] @relation("EventCreator")
+  eventRSVPs         EventRSVP[]
+  resourcesCreated   SharedResource[] @relation("ResourceCreator")
+  resourceAccesses   ResourceAccess[] @relation("ResourceAccessUser")
+  resourceGranted    ResourceAccess[] @relation("ResourceAccessGrantor")
+  notificationsSent  Notification[] @relation("NotificationSender")
+  notificationsRecv  Notification[] @relation("NotificationRecipient")
+}
+
+model Publication {
+  id              Int       @id @default(autoincrement())
+  content         String
+  publicationDate DateTime  @map("publication_date")
+  userId          Int       @map("user_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  user     User     @relation(fields: [userId], references: [id])
+  comments Comment[]
+  
+  @@index([userId], name: "IDX_Publications_User")
+  @@index([publicationDate], name: "IDX_Publications_Date")
+}
+
+model Comment {
+  id            Int       @id @default(autoincrement())
+  content       String
+  commentDate   DateTime  @map("comment_date")
+  userId        Int       @map("user_id")
+  publicationId Int       @map("publication_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  user        User       @relation(fields: [userId], references: [id])
+  publication Publication @relation(fields: [publicationId], references: [id])
+
+  @@index([userId], name: "IDX_Comments_User")
+  @@index([publicationId], name: "IDX_Comments_Publication")
+  @@index([commentDate], name: "IDX_Comments_Date")
+}
+
+model UserGroup {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  creationDate DateTime     @map("creation_date")
+  creatorId   Int           @map("creator_id")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  creator      User          @relation("UserGroupCreator", fields: [creatorId], references: [id])
+  members      GroupMember[]
+  events       Event[]
+  messages     Message[]
+
+  @@index([creatorId], name: "IDX_UserGroups_Creator")
+}
+
+model GroupMember {
+  id           Int       @id @default(autoincrement())
+  joinDate     DateTime  @map("join_date")
+  memberStatus String    @map("member_status")
+  memberRole   String    @map("member_role")
+  userId       Int       @map("user_id")
+  groupId      Int       @map("group_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  user  User      @relation(fields: [userId], references: [id])
+  group UserGroup @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId], name: "UC_GroupMembers_UserGroup")
+  @@index([userId], name: "IDX_GroupMembers_User")
+  @@index([groupId], name: "IDX_GroupMembers_Group")
+  @@index([memberStatus], name: "IDX_GroupMembers_Status")
+}
+
+model Message {
+  id        Int       @id @default(autoincrement())
+  content   String
+  sendDate  DateTime  @map("send_date")
+  userId    Int       @map("user_id")
+  groupId   Int       @map("group_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  user  User      @relation(fields: [userId], references: [id])
+  group UserGroup @relation(fields: [groupId], references: [id])
+
+  @@index([userId], name: "IDX_Messages_User")
+  @@index([groupId], name: "IDX_Messages_Group")
+  @@index([sendDate], name: "IDX_Messages_Date")
+}
+
+model Friendship {
+  id           Int      @id @default(autoincrement())
+  creationDate DateTime @map("creation_date")
+  user1Id      Int      @map("user1_id")
+  user2Id      Int      @map("user2_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user1 User @relation("FriendshipUser1", fields: [user1Id], references: [id])
+  user2 User @relation("FriendshipUser2", fields: [user2Id], references: [id])
+
+  @@unique([user1Id, user2Id], name: "UC_Friendship_Users")
+  @@index([user1Id, user2Id], name: "IDX_Friendships_Users")
+}
+
+model Event {
+  id           Int        @id @default(autoincrement())
+  title        String
+  description  String?
+  startDate    DateTime   @map("start_date")
+  endDate      DateTime   @map("end_date")
+  location     String?
+  locationType String?    @map("location_type")
+  maxParticipants Int?    @map("max_participants")
+  isPrivate    Boolean    @default(false) @map("is_private")
+  status       String
+  creatorId    Int        @map("creator_id")
+  groupId      Int?       @map("group_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  creator      User       @relation("EventCreator", fields: [creatorId], references: [id])
+  group        UserGroup? @relation(fields: [groupId], references: [id])
+  rsvps        EventRSVP[]
+  resources    EventResource[]
+
+  @@index([startDate, endDate], name: "idx_event_dates")
+  @@index([status], name: "idx_event_status")
+}
+
+model EventRSVP {
+  id           Int       @id @default(autoincrement())
+  status       String
+  responseDate DateTime  @map("response_date")
+  notes        String?
+  eventId      Int       @map("event_id")
+  userId       Int       @map("user_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  event Event @relation(fields: [eventId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, userId], name: "UC_EventRSVPs_EventUser")
+  @@index([userId, status], name: "idx_user_rsvps")
+}
+
+model SharedResource {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  resourceType String   @map("resource_type")
+  path        String
+  mimeType    String    @map("mime_type")
+  size        Int
+  isPublic    Boolean   @default(false) @map("is_public")
+  creatorId   Int       @map("creator_id")
+  parentId    Int?      @map("parent_id")
+  metadata    Json?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  creator  User            @relation("ResourceCreator", fields: [creatorId], references: [id])
+  parent   SharedResource? @relation("SharedResourceParent", fields: [parentId], references: [id])
+  children SharedResource[] @relation("SharedResourceParent")
+  accesses ResourceAccess[]
+  eventLinks EventResource[]
+
+  @@index([resourceType], name: "idx_resource_type")
+  @@index([creatorId], name: "idx_creator_resources")
+}
+
+model ResourceAccess {
+  id          Int       @id @default(autoincrement())
+  accessType  String    @map("access_type")
+  grantedAt   DateTime  @map("granted_at")
+  expiresAt   DateTime? @map("expires_at")
+  resourceId  Int       @map("resource_id")
+  userId      Int       @map("user_id")
+  grantedById Int       @map("granted_by_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  resource  SharedResource @relation(fields: [resourceId], references: [id])
+  user      User           @relation("ResourceAccessUser", fields: [userId], references: [id])
+  grantedBy User           @relation("ResourceAccessGrantor", fields: [grantedById], references: [id])
+
+  @@unique([resourceId, userId], name: "UC_ResourceAccess_ResourceUser")
+  @@index([userId], name: "idx_user_access")
+}
+
+model EventResource {
+  id         Int       @id @default(autoincrement())
+  eventId    Int       @map("event_id")
+  resourceId Int       @map("resource_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  event    Event          @relation(fields: [eventId], references: [id])
+  resource SharedResource @relation(fields: [resourceId], references: [id])
+
+  @@unique([eventId, resourceId], name: "UC_EventResources")
+}
+
+model Notification {
+  id          Int                 @id @default(autoincrement())
+  type        NotificationType
+  title       String
+  content     String
+  priority    NotificationPriority @default(MEDIUM)
+  read        Boolean             @default(false)
+  readAt      DateTime?           @map("read_at")
+  expiresAt   DateTime?           @map("expires_at")
+  actionUrl   String?             @map("action_url")
+  recipientId Int                 @map("recipient_id")
+  senderId    Int?                @map("sender_id")
+  relationId  Int?                @map("relation_id")
+  metadata    Json?
+
+  recipient User @relation("NotificationRecipient", fields: [recipientId], references: [id])
+  sender    User? @relation("NotificationSender", fields: [senderId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([recipientId, read, createdAt], name: "idx_user_notifications")
+  @@index([type], name: "idx_notification_type")
+}
+
+enum NotificationType {
+  message
+  friend_request
+  event_invite
+  group_invite
+  comment
+  like
+  share
+  mention
+  system
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
