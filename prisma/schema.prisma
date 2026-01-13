@@ -5,13 +5,16 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../node_modules/.prisma/client"
+  engineType 	= "binary"
 }
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
+
 
 model User {
   id        Int       @id @default(autoincrement())
