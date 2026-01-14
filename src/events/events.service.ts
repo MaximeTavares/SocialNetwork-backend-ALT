@@ -23,6 +23,7 @@ export class EventsService {
 			where: { id },
 			include: {
 				creator: { select: { id: true, firstname: true, lastname: true } },
+				rsvps: { select: { status: true } },
 				resources: {
 					include: {
 						resource: { select: { id: true, title: true, resourceType: true } },

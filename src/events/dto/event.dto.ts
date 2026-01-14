@@ -1,7 +1,7 @@
 export class EventDto {
-	id: string;
+	id: number;
 	title: string;
-	description: string;
+	description?: string;
 	startDate: Date;
 	endDate: Date;
 	location?: string;
@@ -10,6 +10,7 @@ export class EventDto {
 	isPrivate: boolean;
 	status: string;
 	creator: CreatorDto;
+	rsvps: RsvpsDto;
 	resources: ResourceDto[];
 }
 
@@ -22,4 +23,10 @@ export class ResourceDto {
 	id: number;
 	title: string;
 	resourceType: string;
+}
+
+export class RsvpsDto {
+	attending: number;
+	maybe: number;
+	declined: number;
 }

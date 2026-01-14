@@ -7,6 +7,7 @@ import { EventsModule } from "./events/events.module.js";
 import { NotificationsModule } from "./notifications/notifications.module.js";
 import { ResourcesModule } from "./resources/resources.module.js";
 import { EventResourceModule } from "./event-resource/event-resource.module.js";
+import { EventRsvpModule } from "./event-rsvp/event-rsvp.module.js";
 
 @Module({
 	imports: [
@@ -16,6 +17,7 @@ import { EventResourceModule } from "./event-resource/event-resource.module.js";
 		NotificationsModule,
 		ResourcesModule,
 		EventResourceModule,
+		EventRsvpModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

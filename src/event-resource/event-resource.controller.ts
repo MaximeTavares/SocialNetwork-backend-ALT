@@ -10,7 +10,7 @@ export class EventResourceController {
 		return this.eventResourceService.create(+eventId, +resourceId);
 	}
 
-	@Delete(":eventId/:resourceId")
+	@Delete(":resourceId")
 	unlink(@Param("eventId") eventId: string, @Param("resourceId") resourceId: string) {
 		return this.eventResourceService.remove(+eventId, +resourceId);
 	}
