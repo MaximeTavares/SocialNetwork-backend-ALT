@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from "@nestjs/common";
 import { NotificationsService } from "./notifications.service.js";
 import { CreateNotificationDto } from "./dto/create-notification.dto.js";
 import { UpdateNotificationDto } from "./dto/update-notification.dto.js";
@@ -18,13 +18,18 @@ export class NotificationsController {
 	}
 
 	@Get(":id")
-	findOne(@Param("id") id: string) {
-		return this.notificationsService.findOne(+id);
+	findById(@Param("id") id: string) {
+		return this.notificationsService.findById(+id);
 	}
 
 	@Patch(":id")
 	update(@Param("id") id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
 		return this.notificationsService.update(+id, updateNotificationDto);
+	}
+
+	@Put(":id/read")
+	markAsRead(@Param("id") id: string) {
+		return this.notificationsService.markAsRead(+id);
 	}
 
 	@Delete(":id")
