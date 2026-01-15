@@ -200,6 +200,8 @@ model SharedResource {
   metadata    Json?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt	DateTime?
+  deletionReason String?
 
   creator  User            @relation("ResourceCreator", fields: [creatorId], references: [id])
   parent   SharedResource? @relation("SharedResourceParent", fields: [parentId], references: [id])

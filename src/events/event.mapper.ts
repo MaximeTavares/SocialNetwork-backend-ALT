@@ -1,22 +1,21 @@
-export function toEventDto(event: {
-	id: number;
-	title: string;
-	description?: string | null;
-	startDate: Date;
-	endDate: Date;
-	location?: string | null;
-	locationType?: string | null;
-	maxParticipants?: number | null;
-	isPrivate: boolean;
-	status: string;
-	creator: {
-		id: number;
-		firstname: string;
-		lastname: string;
+import { Prisma } from "@prisma/client";
+
+type eventsForMapper = Prisma.EventGetPayload<{
+	include: {
+		creator: { select: { id: true; firstname: true; lastname: true } };
+		rsvps: { select: { status: true } };
+		resources: {
+			include: {
+				resource: { select: { id: true; title: true; resourceType: true } };
+			};
+		};
 	};
-	rsvps: { status: string }[];
-	resources: { resource: any }[];
-}) {
+}>;
+
+export function toEventDto(event: eventsForMapper) {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { createdAt, updatedAt, creatorId, groupId, ...rest } = event;
+	//Transforme les rsvps en compteur
 	const rsvpCount = {
 		attending: 0,
 		maybe: 0,
@@ -30,18 +29,15 @@ export function toEventDto(event: {
 	}
 
 	return {
-		id: event.id,
-		title: event.title,
-		description: event.description,
-		startDate: event.startDate,
-		endDate: event.endDate,
-		location: event.location,
-		locationType: event.locationType,
-		maxParticipants: event.maxParticipants,
-		isPrivate: event.isPrivate,
-		status: event.status,
-		creator: event.creator,
+		...rest,
 		rsvps: rsvpCount,
+		//Flatten creator
+		creator: {
+			id: event.creator.id,
+			firstname: event.creator.firstname,
+			lastname: event.creator.lastname,
+		},
+		//Flatten resources
 		resources: event.resources.map((r) => r.resource),
 	};
 }

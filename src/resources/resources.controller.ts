@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Delete, Put, Query } from "@nestjs/common";
 import { ResourcesService } from "./resources.service.js";
 import { CreateResourceDto } from "./dto/create-resource.dto.js";
 import { UpdateResourceDto } from "./dto/update-resource.dto.js";
+import { DeleteResourceDto } from "./dto/delete.resource.dto.js";
 
 @Controller("api/v1/resources")
 export class ResourcesController {
@@ -18,8 +19,8 @@ export class ResourcesController {
 	}
 
 	@Get(":id")
-	findOne(@Param("id") id: string) {
-		return this.resourcesService.findOne(+id);
+	findById(@Param("id") id: string) {
+		return this.resourcesService.findById(+id);
 	}
 
 	@Put(":id")
@@ -28,7 +29,12 @@ export class ResourcesController {
 	}
 
 	@Delete(":id")
-	remove(@Param("id") id: string) {
-		return this.resourcesService.remove(+id);
+	remove(
+		@Param("id") id: string,
+		@Query("force") force?: string,
+		@Body() body?: DeleteResourceDto,
+	) {
+		const forceDelete = force === "true";
+		return this.resourcesService.remove(+id, forceDelete, body);
 	}
 }

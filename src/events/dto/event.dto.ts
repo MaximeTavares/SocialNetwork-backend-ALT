@@ -15,6 +15,7 @@ export class EventDto {
 }
 
 export class CreatorDto {
+	id: number;
 	firstname: string;
 	lastname: string;
 }

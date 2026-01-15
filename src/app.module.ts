@@ -8,6 +8,7 @@ import { NotificationsModule } from "./notifications/notifications.module.js";
 import { ResourcesModule } from "./resources/resources.module.js";
 import { EventResourceModule } from "./event-resource/event-resource.module.js";
 import { EventRsvpModule } from "./event-rsvp/event-rsvp.module.js";
+import { AccessModule } from "./access/access.module.js";
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { EventRsvpModule } from "./event-rsvp/event-rsvp.module.js";
 		ResourcesModule,
 		EventResourceModule,
 		EventRsvpModule,
+		AccessModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
