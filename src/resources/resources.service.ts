@@ -15,10 +15,12 @@ export class ResourcesService {
 		});
 	}
 
+	// Retourne toutes les ressources (non softdelete)
 	findAll() {
 		return this.prisma.sharedResource.findMany({ where: { deletedAt: null } });
 	}
 
+	// Retourne toutes les ressources softdelete
 	findAllDeletedResources() {
 		return this.prisma.sharedResource.findMany({ where: { deletedAt: { not: null } } });
 	}
@@ -44,7 +46,16 @@ export class ResourcesService {
 	download(resourceId: number, version?: string) {
 		return "Not implemented yet";
 	}
-
+	/**
+	 * Supprime une ressource en hard ou soft delete selon la query qui lui est passée.
+	 * Hard pour la suppression de la base de donnée.
+	 * Soft pour la rendre invisible aux utilisateurs.
+	 *
+	 * @param {number} resourceId - ID de la ressource à supprimer.
+	 * @param {boolean} forceDelete - True pour hardDelete, false pour softDelete.
+	 * @param {DeleteResourceDto} [body] - Donne la possibilité d'indiquer la raison et de notifier l'utilisateur.
+	 * @return {*} - Retour de la réussite en json.
+	 */
 	async remove(resourceId: number, forceDelete: boolean, body?: DeleteResourceDto) {
 		const resource = await this.prisma.sharedResource.findUnique({ where: { id: resourceId } });
 
@@ -54,7 +65,7 @@ export class ResourcesService {
 			//Suppression définitive
 			await this.prisma.sharedResource.delete({ where: { id: resourceId } });
 		} else {
-			//Suppression avec raisons
+			//Suppression de la visibilité avec raisons
 			await this.prisma.sharedResource.update({
 				where: { id: resourceId },
 				data: {

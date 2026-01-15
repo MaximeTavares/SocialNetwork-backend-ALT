@@ -9,12 +9,12 @@ export class EventResourceService {
 		return this.prisma.eventResource.create({ data: { eventId, resourceId } });
 	}
 
-	findByEvent(eventId: number) {
+	/* 	findByEvent(eventId: number) {
 		return this.prisma.eventResource.findMany({
 			where: { eventId },
 			include: { resource: true },
 		});
-	}
+	} */
 
 	remove(eventId: number, resourceId: number) {
 		return this.prisma.eventResource.deleteMany({
