@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, Res } from "@nestjs/common";
 import { ResourcesService } from "./resources.service.js";
 import { CreateResourceDto } from "./dto/create-resource.dto.js";
 import { UpdateResourceDto } from "./dto/update-resource.dto.js";
@@ -18,9 +18,23 @@ export class ResourcesController {
 		return this.resourcesService.findAll();
 	}
 
+	@Get("deleted")
+	findAllDeletedResource() {
+		return this.resourcesService.findAllDeletedResources();
+	}
+
 	@Get(":id")
 	findById(@Param("id") id: string) {
 		return this.resourcesService.findById(+id);
+	}
+
+	@Get(":id/download")
+	download(
+		@Param("id") resourceId: string,
+		@Query("version") version: string,
+		@Res() res: Response,
+	) {
+		return "non implemented yet";
 	}
 
 	@Put(":id")

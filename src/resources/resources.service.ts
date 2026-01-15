@@ -16,7 +16,11 @@ export class ResourcesService {
 	}
 
 	findAll() {
-		return this.prisma.sharedResource.findMany();
+		return this.prisma.sharedResource.findMany({ where: { deletedAt: null } });
+	}
+
+	findAllDeletedResources() {
+		return this.prisma.sharedResource.findMany({ where: { deletedAt: { not: null } } });
 	}
 
 	async findById(id: number) {
@@ -35,6 +39,10 @@ export class ResourcesService {
 
 	update(id: number, updateResourceDto: UpdateResourceDto) {
 		return this.prisma.sharedResource.update({ where: { id }, data: updateResourceDto });
+	}
+
+	download(resourceId: number, version?: string) {
+		return "Not implemented yet";
 	}
 
 	async remove(resourceId: number, forceDelete: boolean, body?: DeleteResourceDto) {

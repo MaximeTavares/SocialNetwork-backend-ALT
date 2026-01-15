@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Prisma } from "@prisma/client";
 
 type resourcesForMapper = Prisma.SharedResourceGetPayload<{
@@ -14,36 +15,41 @@ type Metadata = {
 };
 
 export function toResourceDto(resource: resourcesForMapper) {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { creatorId, parentId, accesses, createdAt, updatedAt, ...rest } = resource;
 
 	const metadata = resource.metadata as Metadata;
 
-	return {
-		...rest,
-		metadata: {
-			version: metadata.version,
-			tags: metadata.tags,
-		},
-		creator: {
-			id: resource.creator.id,
-			firstname: resource.creator.firstname,
-			lastname: resource.creator.lastname,
-		},
-		parent: resource.parent,
-		accessRight: {
-			canEdit: null,
-			canDelete: null,
-			canShare: null,
-		},
-		versions: {
-			version: metadata.version,
-			createdAt: resource.createdAt,
-			createdBy: {
+	if (resource.deletedAt === null) {
+		return {
+			...rest,
+			metadata: {
+				version: metadata.version,
+				tags: metadata.tags,
+			},
+			creator: {
 				id: resource.creator.id,
 				firstname: resource.creator.firstname,
 				lastname: resource.creator.lastname,
 			},
-		},
-	};
+			parent: resource.parent,
+			accessRight: {
+				canEdit: null,
+				canDelete: null,
+				canShare: null,
+			},
+			versions: {
+				version: metadata.version,
+				createdAt: resource.createdAt,
+				createdBy: {
+					id: resource.creator.id,
+					firstname: resource.creator.firstname,
+					lastname: resource.creator.lastname,
+				},
+			},
+		};
+	} else {
+		return {
+			response: "La resource n'existe plus.",
+		};
+	}
 }
