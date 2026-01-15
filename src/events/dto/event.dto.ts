@@ -1,12 +1,12 @@
 export class EventDto {
 	id: number;
 	title: string;
-	description?: string;
+	description?: string | null;
 	startDate: Date;
 	endDate: Date;
-	location?: string;
-	locationType?: string;
-	maxParticipants?: number;
+	location?: string | null;
+	locationType?: string | null;
+	maxParticipants?: number | null;
 	isPrivate: boolean;
 	status: string;
 	creator: CreatorDto;

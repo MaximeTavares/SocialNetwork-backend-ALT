@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { EventDto } from "./dto/event.dto.js";
 
 type eventsForMapper = Prisma.EventGetPayload<{
 	include: {
@@ -12,7 +13,7 @@ type eventsForMapper = Prisma.EventGetPayload<{
 	};
 }>;
 
-export function toEventDto(event: eventsForMapper) {
+export function toEventDto(event: eventsForMapper): EventDto {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { createdAt, updatedAt, creatorId, groupId, ...rest } = event;
 	//Transforme les rsvps en compteur
