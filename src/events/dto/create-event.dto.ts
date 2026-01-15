@@ -1,8 +1,8 @@
 export class CreateEventDto {
 	title: string; // Titre de l'événement
 	description?: string; // Description optionnelle
-	startDate: string; // Format ISO 8601
-	endDate: string; // Format ISO 8601
+	startDate: Date; // Format ISO 8601
+	endDate: Date; // Format ISO 8601
 	location?: string; // Lieu de l'événement
 	locationType?: "physical" | "virtual" | "hybrid"; // Type de lieu
 	maxParticipants?: number; // Nombre maximum de participants
