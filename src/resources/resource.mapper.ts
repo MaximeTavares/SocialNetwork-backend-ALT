@@ -15,7 +15,16 @@ type Metadata = {
 };
 
 export function toResourceDto(resource: resourcesForMapper) {
-	const { creatorId, parentId, accesses, createdAt, updatedAt, ...rest } = resource;
+	const {
+		creatorId,
+		parentId,
+		accesses,
+		createdAt,
+		updatedAt,
+		deletedAt,
+		deletionReason,
+		...rest
+	} = resource;
 
 	const metadata = resource.metadata as Metadata;
 

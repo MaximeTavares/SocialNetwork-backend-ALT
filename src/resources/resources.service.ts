@@ -9,20 +9,34 @@ import { DeleteResourceDto } from "./dto/delete.resource.dto.js";
 export class ResourcesService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	create(createResourceDto: CreateResourceDto) {
-		return this.prisma.sharedResource.create({
+	async create(createResourceDto: CreateResourceDto) {
+		const resource = await this.prisma.sharedResource.create({
 			data: createResourceDto,
+			include: {
+				accesses: true,
+				creator: true,
+				parent: true,
+			},
 		});
+		return toResourceDto(resource);
 	}
 
 	// Retourne toutes les ressources (non softdelete)
 	findAll() {
-		return this.prisma.sharedResource.findMany({ where: { deletedAt: null } });
+		return this.prisma.sharedResource.findMany({
+			where: {
+				deletedAt: null,
+			},
+		});
 	}
 
 	// Retourne toutes les ressources softdelete
 	findAllDeletedResources() {
-		return this.prisma.sharedResource.findMany({ where: { deletedAt: { not: null } } });
+		return this.prisma.sharedResource.findMany({
+			where: {
+				deletedAt: { not: null },
+			},
+		});
 	}
 
 	async findById(id: number) {
@@ -57,17 +71,27 @@ export class ResourcesService {
 	 * @return {*} - Retour de la réussite en json.
 	 */
 	async remove(resourceId: number, forceDelete: boolean, body?: DeleteResourceDto) {
-		const resource = await this.prisma.sharedResource.findUnique({ where: { id: resourceId } });
+		const resource = await this.prisma.sharedResource.findUnique({
+			where: {
+				id: resourceId,
+			},
+		});
 
 		if (!resource) throw new NotFoundException(`Resource ${resourceId} not found.`);
 
 		if (forceDelete) {
 			//Suppression définitive
-			await this.prisma.sharedResource.delete({ where: { id: resourceId } });
+			await this.prisma.sharedResource.delete({
+				where: {
+					id: resourceId,
+				},
+			});
 		} else {
 			//Suppression de la visibilité avec raisons
 			await this.prisma.sharedResource.update({
-				where: { id: resourceId },
+				where: {
+					id: resourceId,
+				},
 				data: {
 					deletedAt: new Date(),
 					deletionReason: body?.deletion_reason ?? null,
